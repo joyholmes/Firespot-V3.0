@@ -1,5 +1,5 @@
 ---
-name: firespot-wechat
+name: firespot
 description: |
   微信公众号内容创作专家技能（增强版）。
 
@@ -81,9 +81,11 @@ examples:
 ### 步骤1：判断用户意图
 
 **如果用户输入已经明确包含所有信息：**
+
 - 直接提取参数，进入阶段1
 
 **如果用户输入模糊或不完整：**
+
 ```
 [FIRESPOT | 参数收集]
 
@@ -327,6 +329,7 @@ JSON结构：
 ```
 
 **完成后输出：**
+
 ```
 [FIRESPOT | 阶段1完成] 多平台热点研究
 ✅ 研究文件：/mnt/user-data/workspace/stage1_research.json
@@ -400,6 +403,7 @@ write_file("/mnt/user-data/workspace/stage2_analysis.json", json.dumps(analysis,
 ```
 
 **完成后输出：**
+
 ```
 [FIRESPOT | 阶段2完成] 内容分析
 ✅ 核心主张：{core_thesis}
@@ -518,6 +522,7 @@ write_file("/mnt/user-data/workspace/stage3_outline.json", json.dumps(outline, e
 ```
 
 **完成后输出：**
+
 ```
 [FIRESPOT | 阶段3完成] 内容规划+图片规划
 ✅ 文章框架：3个核心段落 + 开篇 + 结语
@@ -569,37 +574,38 @@ task(
 
 4. **图片占位符格式（新增）：**
    在文章中插入以下格式的占位符：
-   
-   ```
-   [IMAGE_PLACEHOLDER]
-   position: 封面/第X段后/金句处
-   type: 封面图/配图/数据图/金句图
-   description: 详细描述图片内容、元素、风格
-   style: 设计风格建议（色彩、构图、情感）
-   size: 建议尺寸比例
-   purpose: 此图片的作用（吸引注意/强化论点/数据可视化/便于分享）
-   [/IMAGE_PLACEHOLDER]
-   ```
 
-   **占位符插入位置：**
-   - 封面图：文章最前面
-   - 内容配图：每个主要段落后
-   - 金句图：重要结论或金句处
-   - 数据图：需要数据可视化时
+```
+
+[IMAGE_PLACEHOLDER]
+position: 封面/第X段后/金句处
+type: 封面图/配图/数据图/金句图
+description: 详细描述图片内容、元素、风格
+style: 设计风格建议（色彩、构图、情感）
+size: 建议尺寸比例
+purpose: 此图片的作用（吸引注意/强化论点/数据可视化/便于分享)
+[/IMAGE_PLACEHOLDER]
+
+```
+**占位符插入位置：**
+- 封面图：文章最前面
+- 内容配图：每个主要段落后
+- 金句图：重要结论或金句处
+- 数据图：需要数据可视化时
 
 5. **开篇要求：**
-   - 直接进入场景或数据
-   - 不寒暄，不废话
-   - 3秒内抓住读者注意力
+- 直接进入场景或数据
+- 不寒暄，不废话
+- 3秒内抓住读者注意力
 
 6. **数据引用：**
-   - 标注来源（如：根据XX报告）
-   - 数据要具体（不用"很多"、"大量"）
+- 标注来源（如：根据XX报告）
+- 数据要具体（不用"很多"、"大量"）
 
 7. **语气风格：**
-   - 根据{tone_style}调整
-   - 保持专业但不晦涩
-   - 有观点但不说教
+- 根据{tone_style}调整
+- 保持专业但不晦涩
+- 有观点但不说教
 
 **输出格式：**
 保存到 /mnt/user-data/outputs/stage4_draft.md
@@ -680,6 +686,7 @@ purpose: 便于保存分享
 ```
 
 **完成后输出：**
+
 ```
 [FIRESPOT | 阶段4完成] 内容创作+图片占位符
 ✅ 文章草稿：/mnt/user-data/outputs/stage4_draft.md
@@ -815,6 +822,7 @@ PYTHON_SCRIPT
 ```
 
 **完成后输出：**
+
 ```
 [FIRESPOT | 阶段5完成] 合规校验
 ✅ 综合评分：{score}/100
@@ -892,6 +900,7 @@ outline = json.loads(read_file("/mnt/user-data/workspace/stage3_outline.json"))
 **根据用户指令执行：**
 
 **选项1：`approve`**
+
 ```
 [FIRESPOT | 准备发布到草稿箱]
 
@@ -900,6 +909,7 @@ outline = json.loads(read_file("/mnt/user-data/workspace/stage3_outline.json"))
 ```
 
 **选项2：`revise [意见]`**
+
 ```
 [FIRESPOT | 重新生成]
 
@@ -911,6 +921,7 @@ outline = json.loads(read_file("/mnt/user-data/workspace/stage3_outline.json"))
 ```
 
 **选项3：`detail`**
+
 ```
 ===== 完整文章内容 =====
 
@@ -925,6 +936,7 @@ outline = json.loads(read_file("/mnt/user-data/workspace/stage3_outline.json"))
 ```
 
 **选项4：`cancel`**
+
 ```
 [FIRESPOT | 任务已取消]
 
@@ -1005,7 +1017,7 @@ for i, p in enumerate(placeholders, 1):
         if ':' in line:
             key, value = line.split(':', 1)
             fields[key.strip()] = value.strip()
-    
+
     image_checklist["images"].append({
       "seq": i,
       "position": fields.get("position", "未知"),
@@ -1072,11 +1084,13 @@ write_file("/mnt/user-data/workspace/stage7_image_checklist.json", json.dumps(im
 ### 示例1：标准的完整流程
 
 **用户输入：**
+
 ```
 帮我写一篇公众号文章，从伦理学角度分析AI与人类的本质差异
 ```
 
 **FireSpot响应（v3.0）：**
+
 ```
 [FIRESPOT | 参数收集]
 
@@ -1109,17 +1123,20 @@ write_file("/mnt/user-data/workspace/stage7_image_checklist.json", json.dumps(im
 ### 多平台研究要求（阶段1）
 
 **国内平台（必须尝试）：**
+
 - ✅ 微信公众号（mp.weixin.qq.com）
 - ✅ 小红书（xiaohongshu.com）
 - ✅ B站（bilibili.com）
 - ✅ 抖音（通过web搜索）
 
 **国际平台（如果可行）：**
+
 - ✅ YouTube
 - ✅ X (Twitter)
 - ✅ TikTok
 
 **数据要求：**
+
 - 每个平台至少3-5个数据源
 - 记录具体数据（阅读量、点赞数等）
 - 提取用户真实反馈和疑问
@@ -1127,11 +1144,13 @@ write_file("/mnt/user-data/workspace/stage7_image_checklist.json", json.dumps(im
 ### 图片占位符规范（阶段3、4）
 
 **必须包含的占位符：**
+
 1. 封面图（2.35:1）
 2. 至少3张内容配图
 3. 至少1张金句图
 
 **占位符字段：**
+
 - position：位置
 - type：类型
 - description：详细描述（最重要）
@@ -1142,16 +1161,19 @@ write_file("/mnt/user-data/workspace/stage7_image_checklist.json", json.dumps(im
 ### 自动发布流程（阶段7）
 
 **前提条件：**
+
 - wechat-publisher MCP服务已启用
 - 用户已授权微信公众号访问
 
 **发布内容：**
+
 - 文章正文
 - 标题
 - SEO关键词
 - 图片占位符（保留标记）
 
 **不包含：**
+
 - 实际图片文件（需手动添加）
 - 最终确认（需手动发布）
 
@@ -1178,6 +1200,7 @@ write_file("/mnt/user-data/workspace/stage7_image_checklist.json", json.dumps(im
 **最后更新：** 2026-04-02
 **适用平台：** 微信公众号（WeChat Official Account）
 **新增特性：**
+
 - 🌍 7大社交平台热点研究
 - 🖼️ 图片占位符工作流
 - 📱 自动发布到草稿箱
