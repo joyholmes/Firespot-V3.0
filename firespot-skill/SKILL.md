@@ -15,8 +15,8 @@ description: |
   - 数据分析任务
 
   工作流程：7阶段标准化流程（研究→分析→规划→创作→校验→审核→发布）
-  新特性：多平台热点研究 + 图片占位符工作流 + 自动草稿发布
-  输出：800-1500字微信公众号推文 + 图片占位符 + 自动草稿发布
+  新特性：多平台热点研究 + 图片资产锚点工作流 + 自动草稿发布
+  输出：800-1500字微信公众号推文 + 图片资产锚点 + 自动草稿发布
 triggers:
   - "帮我写"
   - "写一篇"
@@ -52,7 +52,7 @@ examples:
 
 ```
 阶段0：参数收集 → 阶段1：多平台热点研究 → 阶段2：内容分析
-→ 阶段3：内容规划+图片规划 → 阶段4：内容创作+占位符
+→ 阶段3：内容规划+图片资产规划 → 阶段4：内容创作+图片锚点
 → 阶段5：合规校验 → 阶段6：人工审核 → 阶段7：自动发布草稿
 ```
 
@@ -62,8 +62,8 @@ examples:
    - 国内：微信公众号、小红书、抖音、B站
    - 国际：YouTube、X (Twitter)、TikTok
 
-2. **🖼️ 图片占位符工作流**：自动规划并插入图片位置
-   - 封面图占位符
+2. **🖼️ 图片资产锚点工作流**：自动规划图片资源并在正文中插入稳定锚点
+   - 封面图资产
    - 关键内容处配图
    - 金句处的视觉强化
 
@@ -108,7 +108,7 @@ examples:
 5. **发布平台**：默认微信公众号
    默认：微信公众号
 
-6. **图片需求**（新增）：是否需要图片占位符
+6. **图片需求**（新增）：是否需要图片资产锚点
    默认：是（包含封面+3-5处内容配图）
 
 如果以上识别正确，请回复"继续"或"开始"。
@@ -417,7 +417,7 @@ write_file("/mnt/user-data/workspace/stage2_analysis.json", json.dumps(analysis,
 
 ## 📝 阶段3：内容规划 + 图片规划（v3.0 新增）
 
-**动作：生成文章结构框架 + 图片占位符规划**
+**动作：生成文章结构框架 + 可执行图片资产规划**
 
 ```python
 # 基于分析结果，生成详细的文章框架
@@ -443,75 +443,89 @@ outline = {
   "hook": "开篇钩子（50-80字）：用场景、数据或金句切入",
   "sections": [
     {
+      "section_id": "section_1",
       "heading": "小标题1：{论据1的提炼}",
       "key_point": "该段核心内容（1-2句话）",
       "word_count_target": 300-400,
       "content_elements": ["要点1", "要点2", "要点3"],
       "transition": "如何过渡到下一段",
-      "image_placeholder": {  # 新增：图片占位符
-        "position": "段落后",
-        "type": "配图",
-        "description": "图片内容描述（详细说明画面元素、风格、色彩）",
-        "purpose": "图片目的（强化论点/提供数据/场景化）",
-        "suggested_style": "建议风格（如：扁平插画/数据图表/实景照片）",
-        "size": "建议尺寸（如：16:9 或 4:3）"
-      }
+      "image_asset_ref": "inline_01"
     },
     {
+      "section_id": "section_2",
       "heading": "小标题2：{论据2的提炼}",
       "key_point": "该段核心内容（1-2句话）",
       "word_count_target": 300-400,
       "content_elements": ["要点1", "要点2", "要点3"],
       "transition": "如何过渡到下一段",
-      "image_placeholder": {
-        "position": "段落中",
-        "type": "数据图表",
-        "description": "图表内容描述",
-        "purpose": "数据可视化",
-        "suggested_style": "信息图表",
-        "size": "16:9"
-      }
+      "image_asset_ref": "inline_02"
     },
     {
+      "section_id": "section_3",
       "heading": "小标题3：{论据3或实践建议}",
       "key_point": "该段核心内容（1-2句话）",
       "word_count_target": 300-400,
       "content_elements": ["要点1", "要点2", "要点3"],
       "transition": "如何过渡到结语",
-      "image_placeholder": {
-        "position": "段落后",
-        "type": "金句图",
-        "description": "金句文字内容+视觉设计建议",
-        "purpose": "强化记忆，便于分享",
-        "suggested_style": "文字海报/极简设计",
-        "size": "1:1 或 4:5"
-      }
+      "image_asset_ref": "quote_01"
     }
   ],
   "conclusion": "结语方向（50-100字）：升华主题，给出启发性思考",
   "cta": "行动号召：引导读者互动（点赞、在看、转发、评论）",
   "estimated_word_count": "预估总字数",
-  "image_plan": {  # 新增：整体图片规划
-    "cover_image": {
+  "publishing_plan": {
+    "cover": {
+      "asset_id": "cover_01",
+      "role": "cover",
+      "insert_anchor": "article_cover",
       "description": "封面图描述（主视觉+标题文字）",
       "style": "设计风格建议",
-      "colors": "主色调",
-      "mood": "情感氛围",
-      "size": "2.35:1 (微信封面推荐比例)"
+      "aspect_ratio": "2.35:1",
+      "required": True,
+      "upload_policy": "thumb",
+      "source_type": "generate",
+      "source_ref": "当 source_type=user_provided 时填上传文件路径；当 source_type=search 时填搜索关键词/目标对象；当 source_type=generate 时可留空或补充说明",
+      "prompt": "供 mcp_modelarts_generate_image 使用的英文提示词"
     },
-    "total_images": 4-6,  # 封面+3-5处内容图
-    "image_list": [
+    "images": [
       {
-        "seq": 1,
-        "location": "封面",
-        "description": "...",
-        "purpose": "..."
+        "asset_id": "inline_01",
+        "role": "inline",
+        "insert_anchor": "after_section_1",
+        "description": "第一段后的内容配图描述",
+        "style": "扁平插画/实景照片/信息图",
+        "aspect_ratio": "16:9",
+        "required": True,
+        "upload_policy": "article_image",
+        "source_type": "search",
+        "source_ref": "搜索关键词或用户上传图片路径",
+        "prompt": "供 mcp_modelarts_generate_image 使用的英文提示词"
       },
       {
-        "seq": 2,
-        "location": "第一段后",
-        "description": "...",
-        "purpose": "..."
+        "asset_id": "inline_02",
+        "role": "inline",
+        "insert_anchor": "after_section_2",
+        "description": "第二段后的数据图或场景图描述",
+        "style": "信息图表/数据可视化",
+        "aspect_ratio": "16:9",
+        "required": True,
+        "upload_policy": "article_image",
+        "source_type": "generate",
+        "source_ref": "如需引用真实世界图片，改成 search 并填写搜索关键词",
+        "prompt": "供 mcp_modelarts_generate_image 使用的英文提示词"
+      },
+      {
+        "asset_id": "quote_01",
+        "role": "quote",
+        "insert_anchor": "quote_block_1",
+        "description": "金句图文字内容 + 视觉设计建议",
+        "style": "文字海报/极简设计",
+        "aspect_ratio": "4:5",
+        "required": True,
+        "upload_policy": "article_image",
+        "source_type": "generate",
+        "source_ref": "如用户已提供海报素材，可改成 user_provided",
+        "prompt": "供 mcp_modelarts_generate_image 使用的英文提示词"
       }
     ]
   }
@@ -528,16 +542,16 @@ write_file("/mnt/user-data/workspace/stage3_outline.json", json.dumps(outline, e
 ✅ 文章框架：3个核心段落 + 开篇 + 结语
 ✅ 推荐标题：{recommended_title}
 ✅ 标题备选：{3个方向}
-✅ 图片规划：
-   - 封面图：{封面描述}
-   - 配图数量：{X}张
-   - 占位符位置：{具体位置}
+✅ 图片资产规划：
+   - 封面图：cover_01
+   - 正文配图：{X}张
+   - 资源锚点：{asset_id 列表}
 ✅ 规划文件：/mnt/user-data/workspace/stage3_outline.json
 ```
 
 ---
 
-## ✍️ 阶段4：内容创作 + 图片占位符（v3.0 增强版）
+## ✍️ 阶段4：内容创作 + 图片锚点（v3.0 增强版）
 
 **动作：使用 `task` 工具启动写作子Agent**
 
@@ -546,7 +560,7 @@ task(
     description="""
 你是专业的微信公众号撰稿人。
 
-**任务：根据研究、分析和框架，撰写一篇高质量文章（带图片占位符）**
+**任务：根据研究、分析和框架，撰写一篇高质量文章（带图片锚点）**
 
 **参考资料（用read_file读取）：**
 1. 研究文件：/mnt/user-data/workspace/stage1_research.json
@@ -572,98 +586,63 @@ task(
    - 避免"豆腐块"式密集文字
    - 关键观点单独成段
 
-4. **图片占位符格式（新增）：**
-   在文章中插入以下格式的占位符：
+4. **图片锚点规范：**
+   不要再输出长块 IMAGE_PLACEHOLDER，统一使用稳定锚点：
+   - `{{IMG:cover_01}}`
+   - `{{IMG:inline_01}}`
+   - `{{IMG:inline_02}}`
+   - `{{IMG:quote_01}}`
 
-```
+5. **锚点插入位置：**
+   - `{{IMG:cover_01}}`：文章最前面，紧跟标题后
+   - `{{IMG:inline_01}}`：第一部分正文后
+   - `{{IMG:inline_02}}`：第二部分正文后
+   - `{{IMG:quote_01}}`：核心金句或结论处
 
-[IMAGE_PLACEHOLDER]
-position: 封面/第X段后/金句处
-type: 封面图/配图/数据图/金句图
-description: 详细描述图片内容、元素、风格
-style: 设计风格建议（色彩、构图、情感）
-size: 建议尺寸比例
-purpose: 此图片的作用（吸引注意/强化论点/数据可视化/便于分享)
-[/IMAGE_PLACEHOLDER]
+6. **开篇要求：**
+   - 直接进入场景或数据
+   - 不寒暄，不废话
+   - 3秒内抓住读者注意力
 
-```
-**占位符插入位置：**
-- 封面图：文章最前面
-- 内容配图：每个主要段落后
-- 金句图：重要结论或金句处
-- 数据图：需要数据可视化时
+7. **数据引用：**
+   - 标注来源（如：根据XX报告）
+   - 数据要具体（不用"很多"、"大量"）
 
-5. **开篇要求：**
-- 直接进入场景或数据
-- 不寒暄，不废话
-- 3秒内抓住读者注意力
-
-6. **数据引用：**
-- 标注来源（如：根据XX报告）
-- 数据要具体（不用"很多"、"大量"）
-
-7. **语气风格：**
-- 根据{tone_style}调整
-- 保持专业但不晦涩
-- 有观点但不说教
+8. **语气风格：**
+   - 根据{tone_style}调整
+   - 保持专业但不晦涩
+   - 有观点但不说教
 
 **输出格式：**
-保存到 /mnt/user-data/outputs/stage4_draft.md
+1. 保存 markdown 到 /mnt/user-data/outputs/stage4_draft.md
+2. 额外保存结构化发布数据到 /mnt/user-data/workspace/stage4_article.json
+
+Markdown 模板：
 
 # 推荐标题
 
-[IMAGE_PLACEHOLDER]
-position: 封面
-type: 封面图
-description: 根据stage3_outline.json中的封面描述
-style: 设计风格
-size: 2.35:1
-purpose: 吸引点击，传达主题
-[/IMAGE_PLACEHOLDER]
+{{IMG:cover_01}}
 
-## 正文
+## 开篇
+{100-150字钩子}
 
-### 开篇
-{50-80字钩子}
-
-[IMAGE_PLACEHOLDER]
-position: 开篇后
-type: 场景图
-description: 开篇场景的视觉化
-style: 写实/插画
-size: 16:9
-purpose: 营造氛围，引发共鸣
-[/IMAGE_PLACEHOLDER]
-
-### 小标题1
+## 小标题1
 {200-350字}
 
-[IMAGE_PLACEHOLDER]
-position: 第一段后
-type: 配图
-description: 根据论点1的图片描述
-style: ...
-size: 16:9
-purpose: ...
-[/IMAGE_PLACEHOLDER]
+{{IMG:inline_01}}
 
-### 小标题2
+## 小标题2
 {200-350字}
 
-### 小标题3
-{200-350字}
+{{IMG:inline_02}}
 
-[IMAGE_PLACEHOLDER]
-position: 金句处
-type: 金句图
-description: 核心金句文字内容
-style: 极简/文字海报
-size: 4:5
-purpose: 便于保存分享
-[/IMAGE_PLACEHOLDER]
+## 小标题3
+{200-350字，包含核心金句或方法论}
 
-### 结语
-{50-100字}
+{{IMG:quote_01}}
+
+## 结语
+{100-150字}
 
 ---
 
@@ -673,14 +652,21 @@ purpose: 便于保存分享
 
 **预估字数：** 约{实际字数}字
 
-**图片占位符数量：** {X}个
+结构化 JSON 需要包含：
+{
+  "title": "推荐标题",
+  "digest": "120字内摘要",
+  "keywords": ["关键词1", "关键词2", "关键词3"],
+  "markdown_body": "完整 markdown 正文",
+  "images": [stage3_outline.json 中的 publishing_plan.cover + publishing_plan.images]
+}
 
 **重要：** 撰写完成后，检查：
 1. 字数是否符合要求
 2. 段落节奏是否合适
 3. 禁用句式是否避免
-4. 图片占位符是否完整插入
-5. 占位符描述是否清晰具体
+4. 图片锚点是否完整插入
+5. stage4_article.json 是否与 markdown 对齐
 """
 )
 ```
@@ -688,46 +674,53 @@ purpose: 便于保存分享
 **完成后输出：**
 
 ```
-[FIRESPOT | 阶段4完成] 内容创作+图片占位符
+[FIRESPOT | 阶段4完成] 内容创作+图片锚点
 ✅ 文章草稿：/mnt/user-data/outputs/stage4_draft.md
+✅ 发布数据：/mnt/user-data/workspace/stage4_article.json
 ✅ 实际字数：{实际字数}字
 ✅ 段落数：{段落数}个
-✅ 图片占位符：{X}个
-   - 封面图：✓
-   - 内容配图：{X}张
-   - 金句图：{X}张
+✅ 图片锚点：{X}个
+   - cover_01：✓
+   - inline_xx：{X}个
+   - quote_xx：{X}个
 ```
 
 ---
 
 ## ✅ 阶段5：合规校验（v3.0 增强版）
 
-**动作：在sandbox中执行Python校验脚本（含图片占位符检查）**
+**动作：执行合规校验，并生成 `stage5_validation.json` 供阶段6使用。未完成阶段5前，不要进入阶段6。**
+
+### 阶段5执行要求
+
+- 必须读取：
+  - `/mnt/user-data/outputs/stage4_draft.md`
+  - `/mnt/user-data/workspace/stage4_article.json`
+- 必须生成：
+  - `/mnt/user-data/workspace/stage5_validation.json`
+- 如果用户后续在阶段6选择 `revise`，阶段4重写后必须重新执行阶段5，不要直接复用旧校验结果。
 
 ```python
-# 在sandbox中使用bash工具执行
 bash(
     command="""
 python3 << 'PYTHON_SCRIPT'
 import json
 import re
 
-# 读取文章草稿
 with open('/mnt/user-data/outputs/stage4_draft.md', 'r', encoding='utf-8') as f:
     content = f.read()
+with open('/mnt/user-data/workspace/stage4_article.json', 'r', encoding='utf-8') as f:
+    article_meta = json.load(f)
 
-# 校验规则
 issues = []
 score = 100
 warnings = []
 
-# 提取纯正文
 body = content.split('---')
 main_body = max(body, key=len)
 word_count = len(main_body)
 full_word_count = len(content)
 
-# 1. 字数检查
 if word_count < 800:
     issues.append({"level": "error", "category": "字数不足", "msg": f"正文字数不足：{word_count}字（最低800字）", "suggestion": "建议增加论证"})
     score -= 20
@@ -735,7 +728,6 @@ elif word_count > 2000:
     warnings.append({"level": "warning", "category": "字数偏多", "msg": f"字数偏多：{word_count}字（建议≤2000字）", "suggestion": "考虑精简，突出核心观点"})
     score -= 5
 
-# 2. 禁用句式检测
 forbidden_patterns = [
     (r"大家好，今天给大家分享", "陈词滥调的开场白"),
     (r"首先.*?其次.*?最后", "机械的过渡词"),
@@ -752,35 +744,44 @@ for pattern, description in forbidden_patterns:
         issues.append({"level": "warning", "category": "禁用句式", "msg": f"发现{description}（出现{count}次）", "suggestion": "替换为更具体的表达"})
         score -= 5 * count
 
-# 3. 图片占位符检查（新增）
-image_placeholders = re.findall(r'\[IMAGE_PLACEHOLDER\](.*?)\[/IMAGE_PLACEHOLDER\]', content, re.DOTALL)
-if len(image_placeholders) == 0:
-    issues.append({"level": "warning", "category": "缺少图片规划", "msg": "未发现图片占位符", "suggestion": "建议添加封面图和至少3张内容配图"})
-    score -= 10
-else:
-    # 检查每个占位符的完整性
-    required_fields = ['position', 'type', 'description', 'purpose']
-    for i, placeholder in enumerate(image_placeholders, 1):
-        missing_fields = [field for field in required_fields if field not in placeholder]
-        if missing_fields:
-            warnings.append({"level": "info", "category": "占位符不完整", "msg": f"第{i}个占位符缺少字段：{', '.join(missing_fields)}", "suggestion": "补充完整字段信息"})
+image_tokens = re.findall(r'\{\{IMG:([a-zA-Z0-9_-]+)\}\}', content)
+if len(image_tokens) == 0:
+    issues.append({"level": "error", "category": "缺少图片锚点", "msg": "未发现图片锚点", "suggestion": "至少插入 cover 和 2-3 个正文图片锚点"})
+    score -= 15
 
-# 4. 标题长度
-title_match = re.search(r'^#\s+(.+)$', content, re.MULTILINE)
-if title_match:
-    title = title_match.group(1)
-    if len(title) > 64:
-        issues.append({"level": "warning", "category": "标题过长", "msg": f"标题：{len(title)}字", "suggestion": "精简标题"})
-        score -= 5
+images = article_meta.get('images', [])
+asset_ids = [img.get('asset_id') for img in images if img.get('asset_id')]
+unique_asset_ids = set(asset_ids)
+if len(asset_ids) != len(unique_asset_ids):
+    issues.append({"level": "error", "category": "资产重复", "msg": "stage4_article.json 中存在重复 asset_id", "suggestion": "确保每张图使用唯一 asset_id"})
+    score -= 15
 
-# 5. 段落节奏
+if 'cover_01' not in asset_ids:
+    issues.append({"level": "error", "category": "缺少封面资产", "msg": "stage4_article.json 未包含 cover_01", "suggestion": "必须在 publishing_plan 中保留封面图资产"})
+    score -= 15
+
+missing_tokens = [token for token in image_tokens if token not in unique_asset_ids]
+if missing_tokens:
+    issues.append({"level": "error", "category": "锚点未定义", "msg": f"以下锚点未在 stage4_article.json 中声明：{', '.join(missing_tokens)}", "suggestion": "让 markdown 中的锚点与 images[] 一一对应"})
+    score -= 15
+
+if len([token for token in image_tokens if token.startswith('inline_')]) < 2:
+    warnings.append({"level": "warning", "category": "正文配图不足", "msg": "正文配图少于2张", "suggestion": "建议至少保留2-3张正文配图"})
+    score -= 5
+
+if 'quote_01' not in image_tokens:
+    warnings.append({"level": "info", "category": "金句图缺失", "msg": "未发现 quote_01 锚点", "suggestion": "建议保留1张金句图强化传播"})
+
 paragraphs = [p.strip() for p in main_body.split('\n\n') if p.strip()]
 long_paragraphs = [p for p in paragraphs if len(p) > 300]
 if len(long_paragraphs) > 3:
     warnings.append({"level": "info", "category": "段落节奏", "msg": f"{len(long_paragraphs)}个长段落", "suggestion": "建议拆分"})
 
-# 6. 小标题
 headings = re.findall(r'^##\s+(.+)$', content, re.MULTILINE)
+title_match = re.search(r'^#\s+(.+)$', content, re.MULTILINE)
+if title_match and len(title_match.group(1)) > 64:
+    warnings.append({"level": "warning", "category": "标题过长", "msg": f"标题：{len(title_match.group(1))}字", "suggestion": "精简标题"})
+    score -= 5
 
 result = {
     "score": max(0, score),
@@ -788,34 +789,15 @@ result = {
     "full_word_count": full_word_count,
     "paragraph_count": len(paragraphs),
     "heading_count": len(headings),
-    "image_placeholder_count": len(image_placeholders),  # 新增
+    "image_token_count": len(image_tokens),
+    "asset_count": len(images),
     "issues": issues,
     "warnings": warnings,
     "status": "pass" if score >= 80 and len([i for i in issues if i['level'] == 'error']) == 0 else "review"
 }
 
-print(f"\n=== 合规校验结果 ===")
-print(f"综合评分：{result['score']}/100")
-print(f"正文字数：{word_count}字 | 全文：{full_word_count}字")
-print(f"段落数：{len(paragraphs)}个 | 小标题：{len(headings)}个")
-print(f"图片占位符：{len(image_placeholders)}个")  # 新增
-print(f"问题数：{len(issues)}个 | 警告数：{len(warnings)}个")
-print(f"状态：{result['status'].upper()}")
-
-if issues:
-    for i, issue in enumerate(issues, 1):
-        print(f"  {i}. [{issue['category']}] {issue['msg']}")
-
-if warnings:
-    for i, w in enumerate(warnings, 1):
-        print(f"  {i}. [{w['category']}] {w['msg']}")
-
-if not issues and not warnings:
-    print("✅ 文章符合所有规范")
-
 with open('/mnt/user-data/workspace/stage5_validation.json', 'w', encoding='utf-8') as f:
     json.dump(result, f, ensure_ascii=False, indent=2)
-
 PYTHON_SCRIPT
 """
 )
@@ -827,7 +809,8 @@ PYTHON_SCRIPT
 [FIRESPOT | 阶段5完成] 合规校验
 ✅ 综合评分：{score}/100
 ✅ 字数：{word_count}字
-✅ 图片占位符：{X}个  ← 新增
+✅ 图片锚点：{X}个
+✅ 图片资产：{asset_count}个
 ✅ 问题数：{issue_count}个
 ✅ 警告数：{warning_count}个
 ✅ 校验文件：/mnt/user-data/workspace/stage5_validation.json
@@ -837,244 +820,275 @@ PYTHON_SCRIPT
 
 ## 👁️ 阶段6：人工审核
 
-**动作：展示审核界面，等待用户指令**
+**动作：生成真实待发布 HTML，并在展示后停下来等待用户明确回复。未收到 `approve` 前，不要进入阶段7。**
 
-### 读取文章和校验结果
+### 阶段6执行要求
+
+- 必须先读取：
+  - `/mnt/user-data/outputs/stage4_draft.md`
+  - `/mnt/user-data/workspace/stage4_article.json`
+  - `/mnt/user-data/workspace/stage5_validation.json`
+- 必须生成：
+  - `/mnt/user-data/outputs/stage6_review.html`
+  - `/mnt/user-data/workspace/stage6_review_summary.json`
+- 展示审核 HTML 后，必须明确提示用户可回复：`approve / revise / detail / cancel`
+- 这一阶段是人工审核节点：在展示审核 HTML 后停止继续发布，等待用户回复。
+
+### 阶段6执行模板
 
 ```python
+import json
+import re
+import markdown
+
 article = read_file("/mnt/user-data/outputs/stage4_draft.md")
+article_meta = json.loads(read_file("/mnt/user-data/workspace/stage4_article.json"))
 validation = json.loads(read_file("/mnt/user-data/workspace/stage5_validation.json"))
 outline = json.loads(read_file("/mnt/user-data/workspace/stage3_outline.json"))
+
+markdown_body = article_meta.get("markdown_body", article)
+title = article_meta.get("title") or re.search(r'^#\s+(.+)$', article, re.MULTILINE).group(1)
+html_body = markdown.markdown(markdown_body).replace("<h1>", "<h2>").replace("</h1>", "</h2>")
+
+review_meta = {
+    "title": title,
+    "summary": "阶段6审核稿已生成，请先审核 HTML 再决定是否发布。",
+    "score": validation.get("score"),
+    "word_count": validation.get("word_count"),
+    "issue_count": len(validation.get("issues", [])),
+    "warning_count": len(validation.get("warnings", [])),
+    "asset_count": len(article_meta.get("images", [])),
+    "validation_status": validation.get("status"),
+}
+
+review_html = f"""<!DOCTYPE html>
+<html lang=\"zh-CN\">
+  <head>
+    <meta charset=\"UTF-8\" />
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
+    <title>{title} - FireSpot 审核稿</title>
+    <style>
+      body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #f5f7fb; color: #1f2937; }}
+      .wrap {{ max-width: 900px; margin: 0 auto; padding: 32px 20px 64px; }}
+      .card {{ background: #fff; border-radius: 16px; box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08); padding: 28px; margin-bottom: 24px; }}
+      h1 {{ font-size: 32px; line-height: 1.25; margin: 0 0 16px; }}
+      p, li {{ font-size: 16px; line-height: 1.8; }}
+      img {{ max-width: 100%; height: auto; border-radius: 8px; }}
+      ul {{ padding-left: 20px; }}
+      .meta {{ color: #475569; }}
+      .badge {{ display: inline-block; padding: 4px 10px; border-radius: 999px; background: #e0f2fe; color: #0369a1; font-size: 13px; margin-right: 8px; }}
+      .content p {{ margin: 16px 0; }}
+    </style>
+  </head>
+  <body>
+    <div class=\"wrap\">
+      <div class=\"card\">
+        <div class=\"meta\"><span class=\"badge\">FireSpot Stage 6</span>待审核 HTML</div>
+        <h1>{title}</h1>
+        <ul>
+          <li><strong>合规评分：</strong>{review_meta['score']}</li>
+          <li><strong>正文字数：</strong>{review_meta['word_count']}</li>
+          <li><strong>问题数：</strong>{review_meta['issue_count']}</li>
+          <li><strong>警告数：</strong>{review_meta['warning_count']}</li>
+          <li><strong>图片资产数：</strong>{review_meta['asset_count']}</li>
+          <li><strong>校验状态：</strong>{review_meta['validation_status']}</li>
+        </ul>
+      </div>
+      <div class=\"card content\">{html_body}</div>
+    </div>
+  </body>
+</html>
+"""
+
+write_file("/mnt/user-data/outputs/stage6_review.html", review_html)
+write_file("/mnt/user-data/workspace/stage6_review_summary.json", json.dumps(review_meta, ensure_ascii=False, indent=2))
+
+present_files(["/mnt/user-data/outputs/stage6_review.html"])
+print("[FIRESPOT | 阶段6完成] 已生成审核 HTML，请等待用户回复 approve / revise / detail / cancel。")
 ```
 
-### 展示标准化审核界面（v3.0 增强版）
+### 阶段6用户响应规则
 
-```
-╔══════════════════════════════════════════════════════════╗
-║     FIRESPOT 内容审核台 — 微信公众号文章 v3.0            ║
-╠══════════════════════════════════════════════════════════╣
-║ 选题：{topic}
-║ 思考方向：{direction}
-╠══════════════════════════════════════════════════════════╣
-║ 【文章信息】
-║ 推荐标题：{recommended_title}
-║ 字数：{word_count}字 | 合规评分：{score}/100
-║ 图片占位符：{image_count}个  ← 新增
-║ 状态：{status}
-║
-║ 【开篇预览】
-║ {hook前100字}...
-║
-║ 【结构概览】
-║ • {heading1}
-║ • {heading2}
-║ • {heading3}
-║
-║ 【图片规划】  ← 新增
-║ • 封面图：{封面描述}
-║ • 配图：{X}张（{位置描述}）
-║ • 金句图：{X}张
-║
-║ 【合规问题】
-{如果有错误：}
-║ ❌ 必须修复：
-{issue_list}
-{如果有警告：}
-║ ⚠️  建议优化：
-{warning_list}
-{如果无问题：}
-║ ✅ 文章符合所有规范
-╠══════════════════════════════════════════════════════════╣
-║ 【操作选项】
-║   approve          — 确认无误，发布到草稿箱  ← 更新
-║   revise [意见]     — 修改后重新生成
-║   detail           — 查看完整文章
-║   cancel           — 取消任务（保留草稿）
-╚══════════════════════════════════════════════════════════╝
+**1. 用户回复 `approve`**
 
-请输入您的选择：
-```
+- 视为用户允许进入阶段7。
+- 继续使用 `stage6_review.html` 作为发布基线，不要重新换稿。
 
-### 等待用户响应
+**2. 用户回复 `revise` 或 `revise [意见]`**
 
-**根据用户指令执行：**
+- 回到阶段4重写。
+- 重新执行阶段5、阶段6。
 
-**选项1：`approve`**
+**3. 用户回复 `detail`**
 
-```
-[FIRESPOT | 准备发布到草稿箱]
+- 重新展示 `/mnt/user-data/outputs/stage6_review.html`。
+- 然后继续等待用户回复 `approve / revise / cancel`。
 
-正在连接微信公众号发布服务...
-→ 进入阶段7：自动发布草稿
-```
+**4. 用户回复 `cancel`**
 
-**选项2：`revise [意见]`**
-
-```
-[FIRESPOT | 重新生成]
-
-收到修改意见：{user_feedback}
-
-正在重新执行阶段4（内容创作）...
-加入以下修改要求：
-- {user_feedback}
-```
-
-**选项3：`detail`**
-
-```
-===== 完整文章内容 =====
-
-{article_full_content}
-
-===== 合规校验详情 =====
-
-{validation_details}
-
-=====
-请选择操作（approve/revise/detail/cancel）：
-```
-
-**选项4：`cancel`**
-
-```
-[FIRESPOT | 任务已取消]
-
-任务已取消，所有草稿和中间文件已保留：
-- 草稿：/mnt/user-data/outputs/stage4_draft.md
-- 研究数据：/mnt/user-data/workspace/stage1_research.json
-- 分析结果：/mnt/user-data/workspace/stage2_analysis.json
-- 文章框架：/mnt/user-data/workspace/stage3_outline.json
-- 校验报告：/mnt/user-data/workspace/stage5_validation.json
-
-如需继续，可以告诉我：
-- "继续"：使用当前草稿继续
-- "重新开始"：从头开始
-- "修改XX"：针对某部分修改
-```
+- 结束任务。
+- 保留中间文件，不进入阶段7。
 
 ---
 
 ## 📤 阶段7：自动发布到草稿箱（v3.0 新增）
 
-**动作：通过wechat-publisher MCP服务发布到微信公众号草稿箱**
+**动作：仅在阶段0~6都已经跑过，且用户在阶段6明确回复 `approve` 后，再调用 wechat-publisher MCP 创建草稿。阶段7必须消费阶段6审核过的 HTML，不要临时再拼另一份正文。**
 
-### 步骤1：检查wechat-publisher MCP服务
+### 阶段7前置要求
 
-```python
-# 检查MCP服务是否可用
-# 使用mcp工具调用wechat-publisher
-```
+- 必须先确认：
+  - `/mnt/user-data/outputs/stage6_review.html` 已存在
+  - 用户在阶段6明确回复了 `approve`
+- 如果没有明确 `approve`，继续停留在阶段6，不要抢先创建草稿。
 
-### 步骤2：提取文章内容
-
-```python
-# 读取文章
-article = read_file("/mnt/user-data/outputs/stage4_draft.md")
-
-# 提取标题
-title_match = re.search(r'^#\s+(.+)$', article, re.MULTILINE)
-title = title_match.group(1) if title_match else "未命名文章"
-
-# 提取正文（去除图片占位符用于纯文本发布）
-# 但保留占位符标记供后续手动配图
-body = article
-
-# 提取SEO关键词
-keywords_match = re.search(r'关键词：\s*\[(.+?)\]', article)
-keywords = keywords_match.group(1) if keywords_match else ""
-```
-
-### 步骤3：调用MCP发布服务
+### 步骤1：读取审核后的发布数据
 
 ```python
-# 通过MCP工具调用wechat-publisher
-# 具体调用方式取决于MCP工具的接口
-
-# 示例流程：
-# 1. 上传封面图（如果有的话）
-# 2. 创建文章草稿
-# 3. 提取图片占位符信息，生成配图清单
-```
-
-### 步骤4：生成配图清单
-
-```python
-# 从文章中提取所有图片占位符
-import re
 import json
+import re
 
-placeholders = re.findall(r'\[IMAGE_PLACEHOLDER\](.*?)\[/IMAGE_PLACEHOLDER\]', article, re.DOTALL)
+article = read_file("/mnt/user-data/outputs/stage4_draft.md")
+article_meta = json.loads(read_file("/mnt/user-data/workspace/stage4_article.json"))
+outline = json.loads(read_file("/mnt/user-data/workspace/stage3_outline.json"))
+review_html = read_file("/mnt/user-data/outputs/stage6_review.html")
 
-image_checklist = {
-  "total_images": len(placeholders),
-  "images": []
-}
+match = re.search(r'<div class="card content">([\s\S]+)</div>\s*</div>\s*</body>', review_html)
+if not match:
+    raise ValueError("stage6_review.html 结构异常，不能进入发布")
+html_body = match.group(1)
 
-for i, p in enumerate(placeholders, 1):
-    fields = {}
-    for line in p.strip().split('\n'):
-        if ':' in line:
-            key, value = line.split(':', 1)
-            fields[key.strip()] = value.strip()
+title = article_meta.get("title") or re.search(r'^#\s+(.+)$', article, re.MULTILINE).group(1)
+digest = article_meta.get("digest", "")
+keywords = article_meta.get("keywords", [])
+images = article_meta.get("images", [])
+```
 
-    image_checklist["images"].append({
-      "seq": i,
-      "position": fields.get("position", "未知"),
-      "type": fields.get("type", "未知"),
-      "description": fields.get("description", ""),
-      "style": fields.get("style", ""),
-      "size": fields.get("size", ""),
-      "purpose": fields.get("purpose", "")
-    })
+### 步骤2：按三通道策略准备图片资产
 
-# 保存配图清单
-write_file("/mnt/user-data/workspace/stage7_image_checklist.json", json.dumps(image_checklist, ensure_ascii=False, indent=2))
+```python
+uploaded_assets = {}
+thumb_media_id = None
+
+for image in images:
+    source_type = image.get("source_type", "generate")
+    upload_policy = image.get("upload_policy")
+    usage = "thumb" if upload_policy == "thumb" else "article"
+    params = {
+        "source_type": source_type,
+        "usage": usage,
+        "filename": f"{image['asset_id']}.png"
+    }
+
+    if source_type == "generate":
+        params.update({
+            "prompt": image["prompt"],
+            "aspect_ratio": image.get("aspect_ratio", "16:9"),
+            "output_path": f"/mnt/user-data/outputs/{image['asset_id']}.png"
+        })
+    elif source_type == "search":
+        image_url = image.get("image_url") or image.get("source_ref")
+        if not image_url:
+            raise ValueError(f"search 图片缺少 image_url/source_ref: {image['asset_id']}")
+        params["image_url"] = image_url
+    elif source_type == "user_provided":
+        image_url = image.get("image_url")
+        image_base64 = image.get("image_base64")
+        source_ref = image.get("source_ref")
+        if image_url:
+            params["image_url"] = image_url
+        elif image_base64:
+            params["image_base64"] = image_base64
+            params["content_type"] = image.get("content_type", "image/png")
+        elif source_ref:
+            if isinstance(source_ref, str) and source_ref.startswith(("http://", "https://")):
+                params["image_url"] = source_ref
+            else:
+                params["image_base64"] = source_ref
+                params["content_type"] = image.get("content_type", "image/png")
+        else:
+            raise ValueError(f"user_provided 图片缺少可用来源: {image['asset_id']}")
+    else:
+        raise ValueError(f"不支持的 source_type: {source_type}")
+
+    result = mcp.call_tool("wechat-publisher", "mcp_wechat_prepare_image", params)
+    if not result.get("ok"):
+        raise ValueError(f"图片准备失败: {image['asset_id']} -> {result}")
+
+    if usage == "thumb":
+        thumb_media_id = result["thumb_media_id"]
+        uploaded_assets[image["asset_id"]] = {
+            "type": "thumb",
+            "thumb_media_id": thumb_media_id,
+            "source_type": source_type,
+            "file_path": result.get("file_path")
+        }
+    else:
+        uploaded_assets[image["asset_id"]] = {
+            "type": "article_image",
+            "url": result["url"],
+            "source_type": source_type,
+            "origin_url": result.get("origin_url"),
+            "file_path": result.get("file_path")
+        }
+
+if not thumb_media_id:
+    raise ValueError("封面图上传失败，不能创建草稿")
+```
+
+### 步骤3：把审核 HTML 替换为最终微信正文 HTML
+
+```python
+for asset_id, asset in uploaded_assets.items():
+    if asset["type"] == "thumb":
+        html_body = html_body.replace(f"<p>{{{{IMG:{asset_id}}}}}</p>", "")
+        html_body = html_body.replace(f"{{{{IMG:{asset_id}}}}}", "")
+    else:
+        image_html = (
+            f'<p style="text-align:center;margin:24px 0;">'
+            f'<img src="{asset["url"]}" alt="{asset_id}" '
+            f'style="max-width:100%;height:auto;border-radius:8px;" />'
+            f'</p>'
+        )
+        html_body = html_body.replace(f"<p>{{{{IMG:{asset_id}}}}}</p>", image_html)
+        html_body = html_body.replace(f"{{{{IMG:{asset_id}}}}}", image_html)
+
+if "{{IMG:" in html_body:
+    raise ValueError("仍有图片锚点未替换，不能创建草稿")
+```
+
+### 步骤4：创建微信公众号草稿并落盘发布摘要
+
+```python
+draft_result = mcp.call_tool("wechat-publisher", "mcp_wechat_create_draft", {
+    "title": title,
+    "thumb_media_id": thumb_media_id,
+    "content": html_body,
+    "digest": digest,
+    "need_open_comment": 1
+})
+
+write_file(
+    "/mnt/user-data/workspace/stage7_publish_assets.json",
+    json.dumps({
+        "title": title,
+        "keywords": keywords,
+        "thumb_media_id": thumb_media_id,
+        "review_html": "/mnt/user-data/outputs/stage6_review.html",
+        "uploaded_assets": uploaded_assets,
+        "draft_result": draft_result
+    }, ensure_ascii=False, indent=2)
+)
 ```
 
 ### 步骤5：发布完成提示
 
 ```
-╔══════════════════════════════════════════════════════════╗
-║         📱 FIRESPOT 发布成功                              ║
-╠══════════════════════════════════════════════════════════╣
-║ ✅ 文章已发布到微信公众号草稿箱                         ║
-╠══════════════════════════════════════════════════════════╣
-║ 【文章信息】
-║ 标题：{title}
-║ 字数：{word_count}字
-║ 状态：草稿（等待最终确认）                               ║
-║                                                           ║
-║ 【下一步操作】                                            ║
-║ 1. 登录微信公众号后台                                    ║
-║    https://mp.weixin.qq.com                              ║
-║                                                           ║
-║ 2. 进入"草稿箱"                                          ║
-║                                                           ║
-║ 3. 找到文章《{title}》                                   ║
-║                                                           ║
-║ 4. 根据配图清单添加图片：                                ║
-║    共需要{image_count}张图片                             ║
-║    配图清单：/mnt/user-data/workspace/stage7_image_checklist.json ║
-║                                                           ║
-║ 5. 预览文章效果                                          ║
-║                                                           ║
-║ 6. 确认无误后点击"发表"                                  ║
-╠══════════════════════════════════════════════════════════╣
-║ 【文件清单】                                              ║
-║ • 文章正文：/mnt/user-data/outputs/stage4_draft.md       ║
-║ • 配图清单：/mnt/user-data/workspace/stage7_image_checklist.json ║
-║ • 研究数据：/mnt/user-data/workspace/stage1_research.json ║
-║ • 分析报告：/mnt/user-data/workspace/stage2_analysis.json ║
-║ • 文章框架：/mnt/user-data/workspace/stage3_outline.json ║
-║ • 校验报告：/mnt/user-data/workspace/stage5_validation.json ║
-╚══════════════════════════════════════════════════════════╝
-
-💡 温馨提示：
-- 文章中的图片占位符已标记，请根据配图清单逐个添加
-- 建议图片尺寸：封面 2.35:1，配图 16:9，金句图 4:5
-- 发布前请预览手机端效果
-- 确认SEO关键词已正确填写
+[FIRESPOT | 阶段7完成] 微信草稿已创建
+✅ 审核 HTML：/mnt/user-data/outputs/stage6_review.html
+✅ 发布摘要：/mnt/user-data/workspace/stage7_publish_assets.json
+✅ 草稿标题：{title}
+✅ 草稿状态：draft
 ```
 
 ---
@@ -1117,8 +1131,9 @@ write_file("/mnt/user-data/workspace/stage7_image_checklist.json", json.dumps(im
 3. ✅ **使用task工具** - 阶段1和阶段4
 4. ✅ **使用read_file/write_file** - 阶段2、3、5、7
 5. ✅ **执行Python校验** - 阶段5
-6. ✅ **等待用户指令** - 阶段6
-7. ✅ **发布到草稿箱** - 阶段7（新增）
+6. ✅ **生成审核 HTML** - 阶段6产出 `/mnt/user-data/outputs/stage6_review.html`
+7. ✅ **等待用户确认** - 阶段6在展示审核 HTML 后等待 `approve / revise / detail / cancel`
+8. ✅ **确认后再创建草稿** - 阶段7在收到 `approve` 后再调用发布 MCP
 
 ### 多平台研究要求（阶段1）
 
@@ -1141,22 +1156,41 @@ write_file("/mnt/user-data/workspace/stage7_image_checklist.json", json.dumps(im
 - 记录具体数据（阅读量、点赞数等）
 - 提取用户真实反馈和疑问
 
-### 图片占位符规范（阶段3、4）
+### 图片锚点规范（阶段3、4）
 
-**必须包含的占位符：**
+**必须包含的图片资产：**
 
-1. 封面图（2.35:1）
-2. 至少3张内容配图
-3. 至少1张金句图
+1. 封面图 `cover_01`（2.35:1）
+2. 至少2-3张正文配图 `inline_xx`
+3. 至少1张金句图 `quote_01`
 
-**占位符字段：**
+**图片来源策略（新增）：**
 
-- position：位置
-- type：类型
-- description：详细描述（最重要）
-- style：风格建议
-- size：尺寸比例
-- purpose：作用
+- `user_provided`：用户直接提供图片，优先使用
+- `search`：真实世界引用图，适用于人物/产品/地点/新闻现场/官方海报/截图
+- `generate`：抽象概念图、封面氛围图、金句图
+- 默认优先级：`user_provided > search > generate`
+
+**阶段3 资产字段：**
+
+- `asset_id`：唯一图片资源 ID
+- `role`：cover / inline / quote / chart
+- `insert_anchor`：正文插入位置锚点
+- `description`：详细描述（最重要）
+- `style`：风格建议
+- `aspect_ratio`：尺寸比例
+- `required`：是否必须生成
+- `upload_policy`：thumb / article_image
+- `source_type`：user_provided / search / generate
+- `source_ref`：上传路径、搜索关键词或目标对象
+- `prompt`：当 source_type=generate 时供 mcp_modelarts_generate_image 使用的提示词
+
+**阶段4 正文锚点格式：**
+
+- `{{IMG:cover_01}}`
+- `{{IMG:inline_01}}`
+- `{{IMG:inline_02}}`
+- `{{IMG:quote_01}}`
 
 ### 自动发布流程（阶段7）
 
@@ -1164,18 +1198,36 @@ write_file("/mnt/user-data/workspace/stage7_image_checklist.json", json.dumps(im
 
 - wechat-publisher MCP服务已启用
 - 用户已授权微信公众号访问
+- wechat-publisher.mcp_modelarts_generate_image 可用
+- 如需 search，运行环境具备可用搜索/下载图片能力
+- 如需 user_provided，用户上传图片路径必须可访问
+- `/mnt/user-data/workspace/firespot_stage_state.json` 显示阶段0~6已完整完成
+- `/mnt/user-data/workspace/firespot_stage_state.json` 中 `approval_status` 必须是 `approved`
+- `/mnt/user-data/outputs/stage6_review.html` 必须存在，并作为唯一审核基线
 
 **发布内容：**
 
-- 文章正文
+- 阶段6审核通过后的 HTML 正文
 - 标题
 - SEO关键词
-- 图片占位符（保留标记）
+- 自动生成的封面图与正文图片
+- 微信素材上传结果与草稿 media_id
 
-**不包含：**
+**自动完成：**
 
-- 实际图片文件（需手动添加）
-- 最终确认（需手动发布）
+- 校验阶段状态与审核状态
+- 逐张生成图片
+- 封面图上传为 thumb_media_id
+- 正文图上传为微信素材 URL
+- 将 `{{IMG:asset_id}}` 替换为最终图片资源
+- 创建草稿箱文章
+- 生成 `/mnt/user-data/workspace/stage7_publish_assets.json`
+
+**仍需人工确认：**
+
+- 在阶段6先审核 `stage6_review.html`
+- 登录公众号后台预览最终手机端排版
+- 最终点击“发表”
 
 ---
 
@@ -1196,11 +1248,11 @@ write_file("/mnt/user-data/workspace/stage7_image_checklist.json", json.dumps(im
 
 ---
 
-**技能版本：** v3.0 - 多平台研究 + 图片占位符 + 自动草稿发布
-**最后更新：** 2026-04-02
+**技能版本：** v3.0 - 多平台研究 + 图片资产锚点 + 自动草稿发布
+**最后更新：** 2026-04-08
 **适用平台：** 微信公众号（WeChat Official Account）
 **新增特性：**
 
 - 🌍 7大社交平台热点研究
-- 🖼️ 图片占位符工作流
+- 🖼️ 图片资产锚点工作流
 - 📱 自动发布到草稿箱
