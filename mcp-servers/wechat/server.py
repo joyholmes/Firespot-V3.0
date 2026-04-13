@@ -9,8 +9,8 @@ import os
 import time
 import json
 import base64
-from pathlib import Path
-
+import logging
+import traceback
 import httpx
 from mcp.server import Server
 from mcp.server.sse import SseServerTransport
@@ -18,6 +18,8 @@ from mcp.types import Tool, TextContent
 from starlette.applications import Starlette
 from starlette.responses import Response
 from starlette.routing import Mount, Route
+
+logger = logging.getLogger("firespot.wechat_mcp")
 
 # ── 配置（从环境变量读取）──────────────────────────────────────
 WECHAT_APPID = os.environ["WECHAT_APPID"]
@@ -45,21 +47,17 @@ MODELARTS_SIZE_MAP = {
 _token_cache: dict = {"token": None, "expires_at": 0}
 
 
-def resolve_output_path(output_path: str | None) -> str:
-    """将 DeerFlow 虚拟输出路径映射到本机可写目录。"""
-    if not output_path:
-        return os.path.join(os.environ.get("MODELARTS_OUTPUT_DIR", "/tmp"), f"modelarts_{int(time.time())}.png")
-
-    if output_path.startswith("/mnt/user-data/"):
-        base_dir = os.environ.get("DEERFLOW_USER_DATA_DIR") or os.environ.get("MODELARTS_OUTPUT_DIR") or "/tmp/firespot-user-data"
-        relative_path = output_path.removeprefix("/mnt/user-data/")
-        return str(Path(base_dir) / relative_path)
-
-    return output_path
-
-
 def tool_result(payload: dict) -> list[TextContent]:
     return [TextContent(type="text", text=json.dumps(payload, ensure_ascii=False))]
+
+
+def log_tool_exception(tool_name: str, exc: Exception, arguments: dict | None = None) -> None:
+    logger.exception(
+        "wechat MCP tool failed: %s | args=%s | error=%s",
+        tool_name,
+        json.dumps(arguments or {}, ensure_ascii=False, default=str),
+        str(exc),
+    )
 
 
 async def load_image_bytes(client: httpx.AsyncClient, arguments: dict) -> tuple[bytes, str, str]:
@@ -128,7 +126,7 @@ async def generate_modelarts_image_bytes(prompt: str, aspect_ratio: str = "16:9"
         raise ValueError("MODELARTS_API_KEY 未配置")
 
     size = MODELARTS_SIZE_MAP.get(aspect_ratio, "1536x864")
-    output_path = resolve_output_path(output_path)
+    output_path = output_path or os.path.join(os.environ.get("MODELARTS_OUTPUT_DIR", "/tmp"), f"modelarts_{int(time.time())}.png")
 
     async with httpx.AsyncClient(timeout=120.0) as ma_client:
         resp = await ma_client.post(
@@ -181,7 +179,6 @@ async def prepare_wechat_image(arguments: dict, token: str) -> dict:
     filename = arguments.get("filename") or ("prepared-image.png" if usage == "article" else "cover.png")
     origin_url = arguments.get("image_url")
     file_path = None
-    reported_file_path = arguments.get("output_path")
     generated_size = None
 
     async with httpx.AsyncClient(timeout=30.0) as client:
@@ -194,7 +191,6 @@ async def prepare_wechat_image(arguments: dict, token: str) -> dict:
                 aspect_ratio=arguments.get("aspect_ratio", "16:9"),
                 output_path=arguments.get("output_path"),
             )
-            reported_file_path = reported_file_path or file_path
         else:
             if not arguments.get("image_url") and not arguments.get("image_base64"):
                 raise ValueError(f"source_type={source_type} 时必须提供 image_url 或 image_base64")
@@ -209,7 +205,7 @@ async def prepare_wechat_image(arguments: dict, token: str) -> dict:
                 "thumb_media_id": data["media_id"],
                 "media_id": data["media_id"],
                 "origin_url": origin_url,
-                "file_path": reported_file_path,
+                "file_path": file_path,
                 "content_type": content_type,
                 "size": generated_size,
             }
@@ -221,7 +217,7 @@ async def prepare_wechat_image(arguments: dict, token: str) -> dict:
             "usage": usage,
             "url": data["url"],
             "origin_url": origin_url,
-            "file_path": reported_file_path,
+            "file_path": file_path,
             "content_type": content_type,
             "size": generated_size,
         }
@@ -384,6 +380,7 @@ async def call_tool(name: str, arguments: dict):
                     "warning": "请将 thumb_media_id 传给 mcp_wechat_create_draft，不要再使用旧的临时 media/upload 返回值。"
                 })
             except Exception as e:
+                log_tool_exception(name, e, arguments)
                 return tool_result({"ok": False, "error": str(e), "tool": name})
 
         elif name == "mcp_wechat_upload_article_image":
@@ -397,6 +394,7 @@ async def call_tool(name: str, arguments: dict):
                     "source": "media/uploadimg"
                 })
             except Exception as e:
+                log_tool_exception(name, e, arguments)
                 return tool_result({"ok": False, "error": str(e), "tool": name})
 
         elif name == "mcp_wechat_create_draft":
@@ -455,6 +453,7 @@ async def call_tool(name: str, arguments: dict):
             try:
                 return tool_result(await prepare_wechat_image(arguments, token))
             except Exception as e:
+                log_tool_exception(name, e, arguments)
                 return tool_result({"ok": False, "error": str(e), "tool": name})
 
     # ── ModelArts 文生图（不需要微信 token）─────────────────────
