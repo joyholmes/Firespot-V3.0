@@ -5,6 +5,10 @@
 - DeerFlow 框架已安装并运行
 - Python 3.12+
 - LangGraph API
+- 如需自动生图，DeerFlow 运行环境中需提供：
+  - `OPENAI_IMAGE_BASE_URL`
+  - `OPENAI_IMAGE_API_KEY`
+  - `OPENAI_IMAGE_MODEL`
 
 ## 安装步骤
 
@@ -48,12 +52,44 @@ cp config/firespot.yaml /path/to/deerflow/backend/.deer-flow/agents/firespot/con
 ### 5. 重启服务
 
 ```bash
-# 停止服务
-pkill -f "langgraph dev"
+# 在 DeerFlow 项目根目录执行
+make stop
+make dev
+```
 
-# 重启服务
-cd /path/to/deerflow/backend
-PYTHONPATH=. uv run langgraph dev --no-browser --allow-blocking
+### 6. 配置 MCP 与生图环境
+
+FireSpot 仓库已包含 `mcp-servers/wechat/`，其中提供 `wechat-publisher` SSE 服务实现。
+
+如需在 DeerFlow 中启用它：
+
+1. 启动 MCP server：
+
+```bash
+cd /path/to/Firespot-V3.0/mcp-servers/wechat
+./start_wechat_server.sh
+```
+
+2. 在 DeerFlow 的 `extensions_config.json` 中启用：
+
+```json
+{
+  "mcpServers": {
+    "wechat-publisher": {
+      "enabled": true,
+      "type": "sse",
+      "url": "http://localhost:3101/sse"
+    }
+  }
+}
+```
+
+3. 如需启用自动生图，请在 DeerFlow 的 `.env` 或进程环境中配置：
+
+```bash
+OPENAI_IMAGE_BASE_URL=https://your-openai-compatible-gateway/v1
+OPENAI_IMAGE_API_KEY=your-image-api-key
+OPENAI_IMAGE_MODEL=gpt-image-2
 ```
 
 ## 验证安装

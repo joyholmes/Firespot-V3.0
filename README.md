@@ -19,8 +19,20 @@ FireSpot 4.0 实现了一个完整的 7 阶段内容创作工作流：
 - **自动触发机制** - 根据关键词自动激活 FireSpot 工作流
 - **7 阶段工作流** - 系统化的内容创作流程
 - **搜索重试机制** - 确保信息收集的可靠性
-- **发布工具集成** - 支持微信公众号草稿箱自动发布
+- **发布工具集成** - 支持微信公众号草稿箱自动发布与 OpenAI-compatible 生图工具
 - **LangGraph 集成** - 完全集成到 DeerFlow 框架
+
+## MCP / 生图说明
+
+FireSpot 现已包含可直接拷贝到 DeerFlow 侧使用的 MCP server 实现，位置在 [mcp-servers/wechat/](mcp-servers/wechat/)。
+
+运行时通常仍由 DeerFlow 侧通过 `extensions_config.json` 连接 `wechat-publisher` SSE 服务；如需自动生图，请在 DeerFlow 的 `.env` 或进程环境中配置：
+
+```bash
+OPENAI_IMAGE_BASE_URL=https://your-openai-compatible-gateway/v1
+OPENAI_IMAGE_API_KEY=your-image-api-key
+OPENAI_IMAGE_MODEL=gpt-image-2
+```
 
 ## 项目结构
 
@@ -39,10 +51,10 @@ FireSpot_4.0/
 ├── skills/                      # Skills 文件
 │   └── firespot/
 │       └── SKILL.md            # 技能描述
-├── config/                      # 配置文件
-│   └── firespot.yaml           # Agent 配置
-├── docs/                        # 文档目录
-└── tests/                       # 测试文件
+├── mcp-servers/                  # 微信发布 / 生图 MCP server
+│   └── wechat/
+│       ├── server.py             # wechat-publisher SSE server
+│       └── start_wechat_server.sh # 启动脚本
 ```
 
 ## 安装

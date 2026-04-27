@@ -54,6 +54,7 @@ FireSpot 会自动执行 7 个阶段：
 - 完整的文章内容
 - 结构化的分析报告
 - 自动发布到微信草稿箱（需要配置）
+- 可选的 OpenAI-compatible 生图能力（依赖 DeerFlow 侧 MCP 与环境变量配置）
 
 ## 高级功能
 
@@ -68,6 +69,8 @@ FireSpot 会自动重试失败的搜索，最多 3 次。
 ## 注意事项
 
 - 确保已配置微信 MCP 服务器
+- FireSpot 仓库内置的 `mcp-servers/wechat/` 可直接作为 `wechat-publisher` SSE 服务启动
+- 如需自动生图，确保 DeerFlow 侧已启用 `wechat-publisher` MCP 服务，并配置 `OPENAI_IMAGE_BASE_URL`、`OPENAI_IMAGE_API_KEY`、`OPENAI_IMAGE_MODEL`
 - 首次使用需要授权微信访问
 - 文章会自动保存到草稿箱，需手动审核后发布
 

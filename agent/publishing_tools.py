@@ -3,7 +3,7 @@ FireSpot Publishing Tools Handler
 =================================
 
 Automated tools for Publishing stage:
-- ModelArts image generation
+- OpenAI-compatible image generation
 - WeChat draft creation
 - File operations
 
@@ -12,7 +12,6 @@ Version: 4.1.0
 """
 
 import logging
-import asyncio
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 
@@ -20,22 +19,20 @@ logger = logging.getLogger(__name__)
 
 
 # ============================================================================
-# ModelArts Image Generation
+# OpenAI-Compatible Image Generation
 # ============================================================================
 
 async def generate_article_images(
     article_title: str,
     article_content: str,
-    thread_id: str,
     mcp_tools: Optional[Dict] = None,
 ) -> Dict[str, Any]:
     """
-    Generate images for article using ModelArts.
+    Generate images for article using the OpenAI-compatible image MCP tool.
 
     Args:
         article_title: Article title
         article_content: Article content (markdown format)
-        thread_id: Thread ID for file operations
         mcp_tools: Available MCP tools
 
     Returns:
@@ -49,8 +46,9 @@ async def generate_article_images(
         "timestamp": datetime.now().isoformat(),
     }
 
-    if not mcp_tools:
-        logger.warning("⚠️  ModelArts MCP tools not available")
+    image_tool = mcp_tools.get("mcp_openai_generate_image") if mcp_tools else None
+    if not image_tool:
+        logger.warning("⚠️  OpenAI-compatible image MCP tool not available")
         return images_generated
 
     try:
@@ -65,14 +63,9 @@ Aspect ratio: 16:9
 """
 
         logger.info(f"📸 Generating cover image with prompt: {cover_prompt[:100]}...")
-
-        # Call ModelArts generate_cover tool
-        if "modelarts_generate_cover" in mcp_tools:
-            cover_result = await mcp_tools["modelarts_generate_cover"](
-                prompt=cover_prompt
-            )
-            images_generated["cover_image"] = cover_result
-            logger.info(f"✅ Cover image generated: {cover_result}")
+        cover_result = await image_tool(prompt=cover_prompt, aspect_ratio="16:9")
+        images_generated["cover_image"] = cover_result
+        logger.info(f"✅ Cover image generated: {cover_result}")
 
         # Generate inline images for key sections
         key_sections = _extract_key_sections(article_content)
@@ -86,16 +79,12 @@ Aspect ratio: 4:3 or 16:9
 """
 
             logger.info(f"📸 Generating inline image {i+1} for section: {section[:50]}...")
-
-            if "modelarts_generate_inline_image" in mcp_tools:
-                inline_result = await mcp_tools["modelarts_generate_inline_image"](
-                    prompt=inline_prompt
-                )
-                images_generated["inline_images"].append({
-                    "section": section,
-                    "image": inline_result
-                })
-                logger.info(f"✅ Inline image {i+1} generated")
+            inline_result = await image_tool(prompt=inline_prompt, aspect_ratio="4:3")
+            images_generated["inline_images"].append({
+                "section": section,
+                "image": inline_result,
+            })
+            logger.info(f"✅ Inline image {i+1} generated")
 
     except Exception as e:
         logger.error(f"❌ Error generating images: {e}")

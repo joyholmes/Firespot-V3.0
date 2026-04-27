@@ -485,7 +485,7 @@ outline = {
       "upload_policy": "thumb",
       "source_type": "generate",
       "source_ref": "当 source_type=user_provided 时填上传文件路径；当 source_type=search 时填搜索关键词/目标对象；当 source_type=generate 时可留空或补充说明",
-      "prompt": "供 mcp_modelarts_generate_image 使用的英文提示词"
+      "prompt": "供 mcp_openai_generate_image 使用的英文提示词"
     },
     "images": [
       {
@@ -499,7 +499,7 @@ outline = {
         "upload_policy": "article_image",
         "source_type": "search",
         "source_ref": "搜索关键词或用户上传图片路径",
-        "prompt": "供 mcp_modelarts_generate_image 使用的英文提示词"
+        "prompt": "供 mcp_openai_generate_image 使用的英文提示词"
       },
       {
         "asset_id": "inline_02",
@@ -512,7 +512,7 @@ outline = {
         "upload_policy": "article_image",
         "source_type": "generate",
         "source_ref": "如需引用真实世界图片，改成 search 并填写搜索关键词",
-        "prompt": "供 mcp_modelarts_generate_image 使用的英文提示词"
+        "prompt": "供 mcp_openai_generate_image 使用的英文提示词"
       },
       {
         "asset_id": "quote_01",
@@ -525,7 +525,7 @@ outline = {
         "upload_policy": "article_image",
         "source_type": "generate",
         "source_ref": "如用户已提供海报素材，可改成 user_provided",
-        "prompt": "供 mcp_modelarts_generate_image 使用的英文提示词"
+        "prompt": "供 mcp_openai_generate_image 使用的英文提示词"
       }
     ]
   }
@@ -1183,7 +1183,7 @@ write_file(
 - `upload_policy`：thumb / article_image
 - `source_type`：user_provided / search / generate
 - `source_ref`：上传路径、搜索关键词或目标对象
-- `prompt`：当 source_type=generate 时供 mcp_modelarts_generate_image 使用的提示词
+- `prompt`：当 source_type=generate 时供 mcp_openai_generate_image 使用的提示词
 
 **阶段4 正文锚点格式：**
 
@@ -1198,7 +1198,7 @@ write_file(
 
 - wechat-publisher MCP服务已启用
 - 用户已授权微信公众号访问
-- wechat-publisher.mcp_modelarts_generate_image 可用
+- wechat-publisher.mcp_openai_generate_image 可用
 - 如需 search，运行环境具备可用搜索/下载图片能力
 - 如需 user_provided，用户上传图片路径必须可访问
 - `/mnt/user-data/workspace/firespot_stage_state.json` 显示阶段0~6已完整完成

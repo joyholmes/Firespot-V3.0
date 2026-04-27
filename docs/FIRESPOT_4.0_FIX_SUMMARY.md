@@ -138,13 +138,13 @@ You are a professional content creation assistant for WeChat Official Accounts.
 **原因**: MCP 服务器配置正确（extensions_config.json），但服务器进程未启动
 
 **影响**:
-- 无法加载 ModelArts 图像生成工具
+- 无法加载 OpenAI-compatible 生图工具
 - 无法加载 WeChat 发布工具
 - 阶段 7 的功能受限
 
 **建议**:
 1. 启动 wechat-publisher MCP 服务器: `http://localhost:3101/sse`
-2. 启动 modelarts-image-generator MCP 服务器: `http://localhost:3104/sse`
+2. 确认 DeerFlow 侧 `wechat-publisher` MCP 服务可用，并已配置 OpenAI-compatible 生图环境变量
 3. 或者修改代码，使这些工具变为可选
 
 ### ⚠️ Middleware 注入机制
@@ -199,10 +199,10 @@ You are a professional content creation assistant for WeChat Official Accounts.
    make dev
    ```
 
-2. **启动 MCP 服务器**（可选）
+2. **启动 DeerFlow 侧图片/发布 MCP 能力**（可选）
    ```bash
-   # 启动 wechat-publisher
-   # 启动 modelarts-image-generator
+   # 确保 wechat-publisher 已启用
+   # 并在 DeerFlow 环境中配置 OPENAI_IMAGE_BASE_URL / OPENAI_IMAGE_API_KEY / OPENAI_IMAGE_MODEL
    ```
 
 3. **测试验证**

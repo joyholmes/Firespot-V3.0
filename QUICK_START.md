@@ -51,6 +51,7 @@ https://github.com/YOUR_USERNAME/FireSpot-4.0
 - ✅ README.md（项目说明）
 - ✅ agent/（Agent 源代码）
 - ✅ skills/（Skills 文件）
+- ✅ mcp-servers/（wechat-publisher MCP server）
 - ✅ config/（配置文件）
 - ✅ docs/（完整文档）
 - ✅ LICENSE（MIT 许可证）

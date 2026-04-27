@@ -53,9 +53,7 @@ https://github.com/YOUR_USERNAME/FireSpot-4.0
 - ✅ agent/ 目录（所有 Python 代码）
 - ✅ skills/ 目录
 - ✅ config/ 目录
-- ✅ docs/ 目录（所有文档）
-- ✅ LICENSE
-- ✅ .gitignore
+- ✅ mcp-servers/ 目录（wechat-publisher MCP server）
 
 ## 仓库结构预览
 
@@ -73,9 +71,10 @@ FireSpot-4.0/
 ├── skills/                                # Skills 文件
 │   └── firespot/
 │       └── SKILL.md                      # 技能描述
-├── config/                                # 配置文件
-│   └── firespot.yaml                     # Agent 配置
-└── docs/                                  # 文档
+├── mcp-servers/                           # MCP server 实现
+│   └── wechat/
+│       ├── server.py                     # wechat-publisher SSE server
+│       └── start_wechat_server.sh        # 启动脚本
     ├── INSTALLATION.md                    # 安装指南
     ├── USAGE.md                           # 使用指南
     ├── ARCHITECTURE.md                    # 架构文档

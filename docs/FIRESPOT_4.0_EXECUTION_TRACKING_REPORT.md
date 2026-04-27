@@ -75,28 +75,28 @@ grep -E "(🔍|📊|📋|✍️|✅|👀|🚀|FireSpot|阶段|Stage)" \
 
 ### 3. Stage 7 Publishing 关键功能检查
 
-#### 3.1 ModelArts 配图生成
+#### 3.1 OpenAI-compatible 配图生成
 
 **FireSpot 4.0 要求**：
-- 自动调用 `modelarts_generate_cover` 生成封面图（16:9）
-- 自动调用 `modelarts_generate_inline_image` 生成配图（最多3张）
+- 自动调用 `mcp_openai_generate_image` 生成封面图（16:9）
+- 自动调用 `mcp_openai_generate_image` 生成配图（最多3张）
 
 **检查命令**：
 ```bash
-grep -r "modelarts\|配图" \
+grep -r "openai\|配图" \
   /Users/garywong/.deer-flow/threads/8d6823a5-1b5e-4d45-b324-dce1d40727b5/user-data/outputs/*.md
 ```
 
-**检查结果**：❌ 未找到 ModelArts 配图生成的证据
+**检查结果**：❌ 未找到 OpenAI-compatible 配图生成的证据
 
 **日志检查**：
 ```bash
 grep "8d6823a5-1b5e-4d45-b324-dce1d40727b5" \
   /Users/garywong/deer-flow/logs/langgraph.log | \
-  grep -i "modelarts"
+  grep -i "openai"
 ```
 
-**日志结果**：❌ 未找到 ModelArts 工具调用记录
+**日志结果**：❌ 未找到 OpenAI-compatible 工具调用记录
 
 **MCP 工具统计**（从日志）：
 ```
@@ -107,7 +107,7 @@ ACP tools: 0
 ```
 
 **结论**：
-- ❌ ModelArts MCP 工具未加载
+- ❌ OpenAI-compatible 生图 MCP 工具未加载
 - ❌ 没有生成配图
 
 #### 3.2 微信草稿创建
@@ -511,8 +511,8 @@ def make_firespot_agent(config: RunnableConfig) -> Callable:
 3. 高推理模型倾向于自主决策
 
 **配置原因**：
-1. `extensions_config.json` 中 `modelarts-image-generator` 可能未启用
-2. `wechat-publisher` MCP 服务器未连接
+1. `extensions_config.json` 中 `wechat-publisher` 可能未启用或未正确连接
+2. DeerFlow 侧 OpenAI-compatible 生图环境变量未配置
 3. Skill 启用状态未知
 
 **设计原因**：
@@ -528,16 +528,12 @@ def make_firespot_agent(config: RunnableConfig) -> Callable:
 # 检查 MCP 配置
 cat /Users/garywong/deer-flow/extensions_config.json
 
-# 确保 ModelArts 工具启用
+# 确保 wechat-publisher 工具启用，并在 DeerFlow 环境中配置 OpenAI-compatible 生图变量
 {
     "mcpServers": {
-        "modelarts-image-generator": {
+        "wechat-publisher": {
             "enabled": true,
-            "url": "http://localhost:3104/sse",
-            "env": {
-                "MODELARTS_API_KEY": "...",
-                "MODELARTS_API_URL": "..."
-            }
+            "url": "http://localhost:3101/sse"
         }
     }
 }

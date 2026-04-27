@@ -456,7 +456,7 @@ class FireSpotStageTrackingMiddleware:
 
 **你必须：**
 1. 明确输出 "## 阶段 7: 🚀 Publishing (准备发布)" 标记
-2. 使用 MCP 工具生成配套图片（如果有 modelarts-image-generator）
+2. 使用 MCP 工具生成配套图片（如果有 mcp_openai_generate_image）
 3. 准备微信公众号草稿（如果有 wechat-publisher）
 4. 生成发布清单
 5. 完成工作流
